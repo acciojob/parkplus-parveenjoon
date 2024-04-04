@@ -35,6 +35,5 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setPaymentMode(paymentMode);
 
         return paymentRepository.save(payment);
-
     }
 }
