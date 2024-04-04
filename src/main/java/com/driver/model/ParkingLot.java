@@ -5,6 +5,7 @@ import java.util.List;
 
 @Entity
 public class ParkingLot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -12,9 +13,17 @@ public class ParkingLot {
     private String name;
     private String address;
 
-    @OneToMany(mappedBy = "parkingLot",cascade = CascadeType.ALL)
-    List<Spot> spotList;
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL)
+    private List<Spot> spotList;
 
+    public ParkingLot() {}
+
+    public ParkingLot(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    // Getters and setters
     public int getId() {
         return id;
     }
