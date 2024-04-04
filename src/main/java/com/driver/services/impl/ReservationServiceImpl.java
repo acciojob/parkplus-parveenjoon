@@ -23,6 +23,45 @@ public class ReservationServiceImpl implements ReservationService {
     ParkingLotRepository parkingLotRepository3;
     @Override
     public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        ParkingLot parkingLot = parkingLotRepository.findById(parkingLotId)
+                .orElseThrow(() -> new RuntimeException("Parking Lot not found"));
+
+        List<Spot> availableSpots = spotRepository.findByParkingLotIdAndOccupiedFalse(parkingLotId);
+        if (availableSpots.isEmpty()) {
+            throw new Exception("No spot available for reservation");
+        }
+
+        Spot spotToReserve = null;
+        int minPrice = Integer.MAX_VALUE;
+        for (Spot spot : availableSpots) {
+            if (spot.getSpotType().ordinal() >= SpotType.valueOf("FOUR_WHEELER").ordinal() && numberOfWheels > 4) {
+                if (spot.getPricePerHour() < minPrice) {
+                    spotToReserve = spot;
+                    minPrice = spot.getPricePerHour();
+                }
+            } else if (spot.getSpotType().ordinal() >= SpotType.valueOf("TWO_WHEELER").ordinal() && numberOfWheels <= 4) {
+                if (spot.getPricePerHour() < minPrice) {
+                    spotToReserve = spot;
+                    minPrice = spot.getPricePerHour();
+                }
+            }
+        }
+
+        if (spotToReserve == null) {
+            throw new Exception("No suitable spot available for reservation");
+        }
+
+        spotToReserve.setOccupied(true);
+        spotRepository.save(spotToReserve);
+
+        Reservation reservation = new Reservation();
+        reservation.setUser(user);
+        reservation.setSpot(spotToReserve);
+        reservation.setNumberOfHours(timeInHours);
+
+        return reservationRepository.save(reservation);
     }
 }
