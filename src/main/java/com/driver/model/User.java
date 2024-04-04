@@ -5,17 +5,21 @@ import java.util.List;
 
 @Entity
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    List<Reservation> reservationList;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reservation> reservationList;
 
     private String name;
     private String phoneNumber;
     private String password;
 
+    public User() {}
+
+    // Getters and setters
     public int getId() {
         return id;
     }
