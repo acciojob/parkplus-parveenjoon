@@ -5,20 +5,27 @@ import java.util.List;
 
 @Entity
 public class Spot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @ManyToOne
     @JoinColumn
     private ParkingLot parkingLot;
 
-    @OneToMany(mappedBy = "spot",cascade = CascadeType.ALL)
-    List<Reservation> reservationList;
+    @OneToMany(mappedBy = "spot", cascade = CascadeType.ALL)
+    private List<Reservation> reservationList;
 
-    SpotType spotType;
+    @Enumerated(EnumType.STRING)
+    private SpotType spotType;
+
     private Integer pricePerHour;
     private Boolean occupied;
 
+    public Spot() {}
+
+    // Getters and setters
     public int getId() {
         return id;
     }
