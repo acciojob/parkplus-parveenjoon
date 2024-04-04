@@ -1,65 +1,85 @@
+
 package com.driver.services.impl;
 
 import com.driver.model.ParkingLot;
 import com.driver.model.Spot;
+import com.driver.model.SpotType;
 import com.driver.repository.ParkingLotRepository;
 import com.driver.repository.SpotRepository;
 import com.driver.services.ParkingLotService;
-import com.driver.model.SpotType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ParkingLotServiceImpl implements ParkingLotService {
-
     @Autowired
-    private ParkingLotRepository parkingLotRepository;
-
+    ParkingLotRepository parkingLotRepository1;
     @Autowired
-    private SpotRepository spotRepository;
-
+    SpotRepository spotRepository1;
     @Override
     public ParkingLot addParkingLot(String name, String address) {
-        ParkingLot parkingLot = new ParkingLot();
+        ParkingLot parkingLot=new ParkingLot();
         parkingLot.setName(name);
         parkingLot.setAddress(address);
-        return parkingLotRepository.save(parkingLot);
+        //List<Spot> spotList=new ArrayList<>();
+        //parkingLot.setSpotList(spotList);
+        ParkingLot ParkingLotObjSave  = parkingLotRepository1.save(parkingLot);
+        return ParkingLotObjSave;
     }
 
     @Override
     public Spot addSpot(int parkingLotId, Integer numberOfWheels, Integer pricePerHour) {
-        ParkingLot parkingLot = parkingLotRepository.findById(parkingLotId).orElseThrow(() -> new RuntimeException("Parking Lot not found"));
-        Spot spot = new Spot();
-        spot.setParkingLot(parkingLot);
-        spot.setSpotType(getSpotType(numberOfWheels));
-        spot.setPricePerHour(pricePerHour);
-        return spotRepository.save(spot);
+        Optional<ParkingLot> parkingLotOpt = parkingLotRepository1.findById(parkingLotId);
+        ParkingLot parkingLotObj = parkingLotOpt.get();
+
+        Spot spotEntityObj = new Spot();
+        if(numberOfWheels <= 2){
+            spotEntityObj.setSpotType(SpotType.TWO_WHEELER);
+        }else if(numberOfWheels <= 4){
+            spotEntityObj.setSpotType(SpotType.FOUR_WHEELER);
+        }else{
+            spotEntityObj.setSpotType(SpotType.OTHERS);
+        }
+        spotEntityObj.setPricePerHour(pricePerHour);
+        spotEntityObj.setParkingLot(parkingLotObj);
+        spotEntityObj.setOccupied(Boolean.FALSE);
+//        parkingLotObj.getSpotList().add(spotEntityObj);
+        List<Spot> spotList = parkingLotObj.getSpotList();
+        spotList.add(spotEntityObj);
+        parkingLotObj.setSpotList(spotList);
+        parkingLotRepository1.save(parkingLotObj);
+        return spotEntityObj;
     }
 
     @Override
     public void deleteSpot(int spotId) {
-        spotRepository.deleteById(spotId);
+        spotRepository1.deleteById(spotId);
     }
 
     @Override
     public Spot updateSpot(int parkingLotId, int spotId, int pricePerHour) {
-        Spot spot = spotRepository.findById(spotId).orElseThrow(() -> new RuntimeException("Spot not found"));
-        spot.setPricePerHour(pricePerHour);
-        return spotRepository.save(spot);
+        Optional<ParkingLot> parkingLotOpt = parkingLotRepository1.findById(parkingLotId);
+        ParkingLot parkingLotObj = parkingLotOpt.get();
+        List<Spot> spotList = parkingLotObj.getSpotList();
+        Spot spotObj = null;
+        for (Spot spot : spotList) {
+            if (spot.getId() == spotId) {
+                spot.setPricePerHour(pricePerHour);
+                spotObj = spot;
+            }
+        }
+        parkingLotObj.setSpotList(spotList);
+        parkingLotRepository1.save(parkingLotObj);
+        Spot toReturnSpot = spotRepository1.save(spotObj);
+        return toReturnSpot;
     }
 
     @Override
     public void deleteParkingLot(int parkingLotId) {
-        parkingLotRepository.deleteById(parkingLotId);
-    }
-
-    private SpotType getSpotType(Integer numberOfWheels) {
-        if (numberOfWheels == 2) {
-            return SpotType.TWO_WHEELER;
-        } else if (numberOfWheels == 4) {
-            return SpotType.FOUR_WHEELER;
-        } else {
-            return SpotType.OTHERS;
-        }
+        parkingLotRepository1.deleteById(parkingLotId);
     }
 }
