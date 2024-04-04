@@ -14,16 +14,23 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository4;
     @Override
     public void deleteUser(Integer userId) {
-
+        userRepository.deleteById(userId);
     }
 
     @Override
     public User updatePassword(Integer userId, String password) {
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPassword(password);
+        return userRepository.save(user);
     }
 
     @Override
     public void register(String name, String phoneNumber, String password) {
-
+        User user = new User();
+        user.setName(name);
+        user.setPhoneNumber(phoneNumber);
+        user.setPassword(password);
+        userRepository.save(user);
     }
 }
