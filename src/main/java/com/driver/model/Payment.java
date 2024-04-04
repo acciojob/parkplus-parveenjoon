@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 @Entity
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -12,9 +13,14 @@ public class Payment {
     @JoinColumn
     private Reservation reservation;
 
-    boolean paymentCompleted;
-    PaymentMode paymentMode;
+    private boolean paymentCompleted;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentMode paymentMode;
+
+    public Payment() {}
+
+    // Getters and setters
     public int getId() {
         return id;
     }
