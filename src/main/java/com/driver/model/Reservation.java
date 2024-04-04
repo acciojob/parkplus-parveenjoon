@@ -1,10 +1,10 @@
 package com.driver.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 public class Reservation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,11 +17,14 @@ public class Reservation {
     @JoinColumn
     private Spot spot;
 
-    @OneToOne(mappedBy = "reservation",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
     private Payment payment;
 
     private int numberOfHours;
 
+    public Reservation() {}
+
+    // Getters and setters
     public int getId() {
         return id;
     }
